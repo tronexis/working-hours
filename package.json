@@ -1,6 +1,5 @@
 {
-  "name": "project-next-tailwind",
-  "version": "0.1.0",
+  "name": "working-hours",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
