@@ -1,127 +1,117 @@
-import React from "react";
+import React, { useState } from "react";
+import TimePicker from "./TimePicker";
+import Select from "./Select";
+import WorkingHoursCard from "./WorkingHoursCard";
+import Axios from "axios";
+import { format } from "date-fns";
+import { getAvailabilityConstraints } from "../lib/axios";
 
-const RecurringWorkingHours = (props) => {
+const RecurringWorkingHours = (_) => {
+  const weekDays = [
+    {
+      id: 1,
+      value: "Monday",
+    },
+    {
+      id: 2,
+      value: "Tuesday",
+    },
+    {
+      id: 3,
+      value: "Wednesday",
+    },
+    {
+      id: 4,
+      value: "Thursday",
+    },
+    {
+      id: 5,
+      value: "Friday",
+    },
+    {
+      id: 6,
+      value: "Saturday",
+    },
+    {
+      id: 7,
+      value: "Sunday",
+    },
+  ];
+
+  const [day, setDay] = useState(weekDays[0]);
+  const [start, setStart] = useState(new Date("2022-10-23T09:00:00"));
+  const [end, setEnd] = useState(new Date("2022-10-23T17:00:00"));
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    const newData = {
+      allow_day_and_time: {
+        day: day.value,
+        start: format(start, "HH:mm"),
+        end: format(end, "HH:mm"),
+      },
+    };
+
+    const data = _.data.length > 0 ? [..._.data, newData] : [newData];
+
+    _.setData(data);
+    await _.updateData([..._.fullData, newData]);
+  };
+
+  const handleRemove = async (item) => {
+    let data = _.data;
+    await _.updateData(
+      _.fullData?.filter(
+        (_, i) =>
+         !( _.allow_day_and_time?.day === item.allow_day_and_time.day &&
+          _.allow_day_and_time?.start === item.allow_day_and_time.start &&
+          _.allow_day_and_time?.end === item.allow_day_and_time.end)
+      )
+    );
+    data = _.data.filter(
+      (_, i) =>
+        !(_.allow_day_and_time?.day === item.allow_day_and_time.day &&
+        _.allow_day_and_time?.start === item.allow_day_and_time.start &&
+        _.allow_day_and_time?.end === item.allow_day_and_time.end)
+    );
+    _.setData(data);
+  };
+
   return (
-    <div className="p-8 space-y-5 bg-white shadow max-w-screen-md">
-      <div className="space-y-6">
-        <h2 className="text-[23px] font-medium heading">
-          Recurring working hours
-        </h2>
-        <p className="text-[13px] text-gray-400">
-          <span className="text-red-500 font-bold mr-0.5">Note: </span>Define
-          which weekly recurring times you are available. The working hours
-          apply to all projects that include you.{" "}
-        </p>
-      </div>
+    <WorkingHoursCard
+      heading="Recurring working hours"
+      note="Define
+    which weekly recurring times you are available. The working hours
+    apply to all projects that include you."
+      type="recurring"
+      data={_.data}
+      onRemove={handleRemove}
+    >
       <div className="space-y-3">
         <p className="text-[13px] text-blue-600">Add recurring working hours</p>
         <form
           action=""
           className="flex flex-col sm:flex-row gap-4 sm:items-end"
         >
-          <fieldset>
-            <label
-              for="day-field"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-            />
-            <select
-              id="day-field"
-              class="bg-white border-b-2 border-gray-100 text-gray-900 focus:border-none text-[15px] block w-full py-2 cursor-pointer"
-            >
-              <option className="font-['Open_Sans']" value="Monday">
-                {" "}
-                Monday{" "}
-              </option>
-              <option className="font-['Open_Sans']" value="Tuesday">
-                {" "}
-                Tuesday{" "}
-              </option>
-              <option className="font-['Open_Sans']" value="Wednesday">
-                {" "}
-                Wednesday{" "}
-              </option>
-              <option className="font-['Open_Sans']" value="Thursday">
-                {" "}
-                Thursday{" "}
-              </option>
-              <option className="font-['Open_Sans']" value="Friday">
-                {" "}
-                Friday{" "}
-              </option>
-              <option className="font-['Open_Sans']" value="Saturday">
-                {" "}
-                Saturday{" "}
-              </option>
-              <option className="font-['Open_Sans']" value="Sunday">
-                {" "}
-                Sunday{" "}
-              </option>
-            </select>
+          <fieldset className="min-w-[10rem]">
+            <Select data={weekDays} selected={day} setSelected={setDay} />
           </fieldset>
-          <fieldset>
-            <button
-              id="dropdownDefault"
-              data-dropdown-toggle="dropdown"
-              class="bg-white border-b-2 border-gray-100 text-gray-900 focus:border-none text-[15px] w-full py-2 inline-flex items-center justify-between px-0.5 min-w-[80px]"
-              type="button"
-            >
-              09:00{" "}
-              <svg
-                class="ml-2 w-4 h-4"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                ></path>
-              </svg>
-            </button>
+          <fieldset className="min-w-[2rem]">
+            <TimePicker value={start} setValue={setStart} />
           </fieldset>
-          <fieldset>
-            <button
-              id="dropdownDefault"
-              data-dropdown-toggle="dropdown"
-              class="bg-white border-b-2 border-gray-100 text-gray-900 focus:border-none text-[15px] w-full py-2 inline-flex items-center justify-between px-0.5 min-w-[80px]"
-              type="button"
-            >
-              09:00{" "}
-              <svg
-                class="ml-2 w-4 h-4"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                ></path>
-              </svg>
-            </button>
+          <fieldset className="min-w-[2rem]">
+            <TimePicker value={end} setValue={setEnd} />
           </fieldset>
-          <button className="px-3 py-2 text-xs font-semibold text-gray-500 transition border rounded hover:bg-gray-50">
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="px-3 py-2 text-xs font-semibold text-gray-500 transition border rounded hover:bg-gray-50"
+          >
             Add
           </button>
         </form>
       </div>
-      <div className="space-y-3">
-        <p className="text-[13px] text-blue-600">
-          Current recurring working hours
-        </p>
-        <p className="text-[13px] text-gray-400">
-          No recurring working hours defined.
-        </p>
-      </div>
-    </div>
+    </WorkingHoursCard>
   );
 };
 

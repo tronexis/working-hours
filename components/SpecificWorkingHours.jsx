@@ -1,106 +1,115 @@
-import React from "react";
+import Select from "./Select";
+import WorkingHoursCard from "./WorkingHoursCard";
+import DatePicker from "./DatePicker";
+import React, { useState } from "react";
+import { format } from "date-fns";
+import {
+  getAvailabilityConstraints,
+} from "../lib/axios";
 
-const SpecificWorkingHours = (props) => {
+const SpecificWorkingHours = (_) => {
+  const availabilities = [
+    {
+      id: 1,
+      value: "Allow availablility (e.g. one-off)",
+    },
+    {
+      id: 2,
+      value: "Block availablility (e.g. out of office)",
+    },
+  ];
+
+  const [availability, setAvailability] = useState(availabilities[0]);
+
+  const day = new Date();
+  // const day2 = new Date();
+  
+  day.setDate(day.getDate() + 1);
+  const [start, setStart] = useState(day);
+
+  const [end, setEnd] = useState(day);
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    const newData = availability.id === 0 ? {
+      allow_period: {
+        start: format(start, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+        end: format(end, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+      },
+    }
+    : {
+      block_period: {
+        start: format(start, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+        end: format(end, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+      },
+    };
+    console.log(newData);
+
+    const data = _.data.length > 0 ? [..._.data, newData] : [newData];
+
+    _.setData(data);
+    await _.updateData([..._.fullData, newData]);
+  };
+
+  // const handleRemove = async (item) => {
+  //   let data = _.data;
+  //   await _.updateData(
+  //     _.fullData?.filter(
+  //       (_, i) =>
+  //        !( _.allow_day_and_time?.day === item.allow_day_and_time.day &&
+  //         _.allow_day_and_time?.start === item.allow_day_and_time.start &&
+  //         _.allow_day_and_time?.end === item.allow_day_and_time.end)
+  //     )
+  //   );
+  //   data = _.data.filter(
+  //     (_, i) =>
+  //       !(_.allow_day_and_time?.day === item.allow_day_and_time.day &&
+  //       _.allow_day_and_time?.start === item.allow_day_and_time.start &&
+  //       _.allow_day_and_time?.end === item.allow_day_and_time.end)
+  //   );
+  //   _.setData(data);
+  // };
+
+  const handleRemove = async (index) => {
+    let data = _.data.filter((_, i) => index !== i);
+    await _.updateData(data);
+    data = await getAvailabilityConstraints();
+    _.setData(data);
+  };
+  
   return (
-    <div className="p-12 space-y-5 bg-white shadow max-w-screen-md">
-      <div className="space-y-6">
-        <h2 className="text-[23px] font-medium heading">
-          Specific working hours
-        </h2>
-        <p className="text-[13px] text-gray-400">
-          <span className="text-red-500 font-bold mr-0.5">Note: </span>You can
+    <WorkingHoursCard
+      heading="Specific working hours"
+      note="You can
           allow (whitelist) or block (blacklist) specific time intervals in
           addition to your recurring working hours. Specific working hours are
           useful for holidays, out of office, or irregular schedules that change
-          frequently.
-        </p>
-      </div>
+          frequently."
+      type="specific"
+      data={_.data}
+      onRemove={handleRemove}
+    >
       <div className="space-y-3">
         <p className="text-[13px] text-blue-600">Add specific working hours</p>
-        <form action="" className="flex flex-col gap-4">
-          <fieldset>
-            <label
-              for="availability-field"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-            />
-            <select
-              id="availability-field"
-              class="bg-white border-b-2 border-gray-100 text-gray-900 focus:border-none text-[15px] block w-full max-w-[22rem] py-2 cursor-pointer"
-            >
-              <option className="font-['Open_Sans']" value="Monday">
-                Allow availability (e.g. one-off)
-              </option>
-              <option className="font-['Open_Sans']" value="Monday">
-                Block availability (e.g. out of office)
-              </option>
-            </select>
+        <form
+          action=""
+          className="flex flex-col sm:flex-row gap-4 sm:items-end"
+        >
+          <fieldset className="min-w-[10rem]">
+            <Select data={availabilities} selected={availability} setSelected={setAvailability} />
           </fieldset>
-          <fieldset className="flex flex-col sm:flex-row gap-4 sm:items-end">
-            <fieldset>
-              <button
-                id="dropdownDefault"
-                data-dropdown-toggle="dropdown"
-                class="bg-white border-b-2 border-gray-100 text-gray-900 focus:border-none text-[15px] w-full py-2 inline-flex items-center justify-between px-0.5 min-w-[12rem]"
-                type="button"
-              >
-                2022-10-20 09:00
-                <svg
-                  class="ml-2 w-4 h-4"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </button>
-            </fieldset>
-            <fieldset>
-              <button
-                id="dropdownDefault"
-                data-dropdown-toggle="dropdown"
-                class="bg-white border-b-2 border-gray-100 text-gray-900 focus:border-none text-[15px] w-full py-2 inline-flex items-center justify-between px-0.5 min-w-[12rem]"
-                type="button"
-              >
-                2022-10-20 09:00
-                <svg
-                  class="ml-2 w-4 h-4"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </button>
-            </fieldset>
-            <button className="px-3 py-2 text-xs font-semibold text-gray-500 transition border rounded hover:bg-gray-50">
-              Add
-            </button>
+          <fieldset className="min-w-[2rem]">
+            <DatePicker value={start} setValue={setStart} minDate={day} />
           </fieldset>
+          <fieldset className="min-w-[2rem]">
+            <DatePicker value={end} setValue={setEnd} minDate={day} />
+          </fieldset>
+          <button onClick={handleAdd} className="px-3 py-2 text-xs font-semibold text-gray-500 transition border rounded hover:bg-gray-50">
+            Add
+          </button>
         </form>
       </div>
-      <div className="space-y-3">
-        <p className="text-[13px] text-blue-600">
-          Current specific working hours
-        </p>
-        <p className="text-[13px] text-gray-400">
-          No specific working hours defined.
-        </p>
-      </div>
-    </div>
+    </WorkingHoursCard>
   );
 };
 
