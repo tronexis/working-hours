@@ -3,9 +3,6 @@ import WorkingHoursCard from "./WorkingHoursCard";
 import DatePicker from "./DatePicker";
 import React, { useState } from "react";
 import { format } from "date-fns";
-import {
-  getAvailabilityConstraints,
-} from "../lib/axios";
 
 const SpecificWorkingHours = (_) => {
   const availabilities = [
@@ -23,7 +20,7 @@ const SpecificWorkingHours = (_) => {
 
   const day = new Date();
   // const day2 = new Date();
-  
+
   day.setDate(day.getDate() + 1);
   const [start, setStart] = useState(day);
 
@@ -31,19 +28,20 @@ const SpecificWorkingHours = (_) => {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    const newData = availability.id === 0 ? {
-      allow_period: {
-        start: format(start, "yyyy-MM-dd'T'HH:mm:ssxxx"),
-        end: format(end, "yyyy-MM-dd'T'HH:mm:ssxxx"),
-      },
-    }
-    : {
-      block_period: {
-        start: format(start, "yyyy-MM-dd'T'HH:mm:ssxxx"),
-        end: format(end, "yyyy-MM-dd'T'HH:mm:ssxxx"),
-      },
-    };
-    console.log(newData);
+    const newData =
+      availability.id === 1
+        ? {
+            allow_period: {
+              start: format(start, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+              end: format(end, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+            },
+          }
+        : {
+            block_period: {
+              start: format(start, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+              end: format(end, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+            },
+          };
 
     const data = _.data.length > 0 ? [..._.data, newData] : [newData];
 
@@ -51,32 +49,39 @@ const SpecificWorkingHours = (_) => {
     await _.updateData([..._.fullData, newData]);
   };
 
-  // const handleRemove = async (item) => {
-  //   let data = _.data;
-  //   await _.updateData(
-  //     _.fullData?.filter(
-  //       (_, i) =>
-  //        !( _.allow_day_and_time?.day === item.allow_day_and_time.day &&
-  //         _.allow_day_and_time?.start === item.allow_day_and_time.start &&
-  //         _.allow_day_and_time?.end === item.allow_day_and_time.end)
-  //     )
-  //   );
-  //   data = _.data.filter(
-  //     (_, i) =>
-  //       !(_.allow_day_and_time?.day === item.allow_day_and_time.day &&
-  //       _.allow_day_and_time?.start === item.allow_day_and_time.start &&
-  //       _.allow_day_and_time?.end === item.allow_day_and_time.end)
-  //   );
-  //   _.setData(data);
-  // };
-
-  const handleRemove = async (index) => {
-    let data = _.data.filter((_, i) => index !== i);
-    await _.updateData(data);
-    data = await getAvailabilityConstraints();
+  const handleRemove = async (item) => {
+    let data = _.data;
+    await _.updateData(
+      _.fullData?.filter(
+        (_, i) =>
+          (Object.keys(item)[0] === "allow_period" &&
+            !(
+              _.allow_period?.start === item.allow_period.start &&
+              _.allow_period?.end === item.allow_period.end
+            )) ||
+          (Object.keys(item)[0] === "block_period" &&
+            !(
+              _.block_period?.start === item.block_period.start &&
+              _.block_period?.end === item.block_period.end
+            ))
+      )
+    );
+    data = _.data.filter(
+      (_, i) =>
+        (Object.keys(item)[0] === "allow_period" &&
+          !(
+            _.allow_period?.start === item.allow_period.start &&
+            _.allow_period?.end === item.allow_period.end
+          )) ||
+        (Object.keys(item)[0] === "block_period" &&
+          !(
+            _.block_period?.start === item.block_period.start &&
+            _.block_period?.end === item.block_period.end
+          ))
+    );
     _.setData(data);
   };
-  
+
   return (
     <WorkingHoursCard
       heading="Specific working hours"
@@ -93,20 +98,29 @@ const SpecificWorkingHours = (_) => {
         <p className="text-[13px] text-blue-600">Add specific working hours</p>
         <form
           action=""
-          className="flex flex-col sm:flex-row gap-4 sm:items-end"
+          className="flex flex-col gap-4"
         >
-          <fieldset className="min-w-[10rem]">
-            <Select data={availabilities} selected={availability} setSelected={setAvailability} />
+          <fieldset className="min-w-[10rem] w-96">
+            <Select
+              data={availabilities}
+              selected={availability}
+              setSelected={setAvailability}
+            />
           </fieldset>
-          <fieldset className="min-w-[2rem]">
-            <DatePicker value={start} setValue={setStart} minDate={day} />
-          </fieldset>
-          <fieldset className="min-w-[2rem]">
-            <DatePicker value={end} setValue={setEnd} minDate={day} />
-          </fieldset>
-          <button onClick={handleAdd} className="px-3 py-2 text-xs font-semibold text-gray-500 transition border rounded hover:bg-gray-50">
-            Add
-          </button>
+          <div className="gap-4 flex flex-col sm:flex-row">
+            <fieldset className="min-w-[2rem]">
+              <DatePicker value={start} setValue={setStart} minDate={day} />
+            </fieldset>
+            <fieldset className="min-w-[2rem]">
+              <DatePicker value={end} setValue={setEnd} minDate={day} />
+            </fieldset>
+            <button
+              onClick={handleAdd}
+              className="px-3 py-2 text-xs font-semibold text-gray-500 transition border rounded hover:bg-gray-50"
+            >
+              Add
+            </button>
+          </div>
         </form>
       </div>
     </WorkingHoursCard>

@@ -24,10 +24,7 @@ export default function Home(_) {
   }, [_.data]);
 
   const updateData = async (data) => {
-    // const newData = !!recurringData.length && !!specificData.length ? [...recurringData, ...specificData] : !!recurringData.length ? [...recurringData] : [...specificData];
-    console.log(data)
     await updateAvailabilityConstraints(data);
-    // loadData();
   };
 
   useEffect(() => {
@@ -36,7 +33,7 @@ export default function Home(_) {
 
   return (
     <>
-      <div className="p-6 flex flex-col sm:flex-row gap-6 justify-center">
+      <div className="p-6 flex flex-col xl:flex-row gap-6 justify-center">
         <RecurringWorkingHours
           fullData={_.data}
           data={recurringData}

@@ -1,8 +1,9 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
+import { format } from "date-fns";
 
 const WorkingHoursCard = (_) => {
   return (
-    <div className="p-8 space-y-5 bg-white shadow max-w-screen-md">
+    <div className="p-8 space-y-5 bg-white shadow xl:w-1/2">
       <div className="space-y-6">
         <h2 className="text-[23px] font-medium heading">{_.heading}</h2>
         <p className="text-[13px] text-gray-400">
@@ -15,7 +16,7 @@ const WorkingHoursCard = (_) => {
         <p className="text-[13px] text-blue-600">
           Current {_.type} working hours
         </p>
-        <div>
+        <div className="text-sm">
           {!!_.data?.length &&
             _.type === "recurring" &&
             _.data?.map((item, i) => (
@@ -55,22 +56,22 @@ const WorkingHoursCard = (_) => {
                   <p>
                     <em className="not-italic text-black">Block</em> from{" "}
                     <em className="not-italic text-black">
-                      {item?.block_period?.start}
+                      {format(new Date(item?.block_period?.start), 'yyyy-MM-dd HH:mm')}
                     </em>{" "}
                     to{" "}
                     <em className="not-italic text-black">
-                      {item?.block_period?.end}
+                      {format(new Date(item?.block_period?.end), 'yyyy-MM-dd HH:mm')}
                     </em>
                   </p>
                 ) : (
                   <p>
                     <em className="not-italic text-black">Allow</em> from{" "}
                     <em className="not-italic text-black">
-                      {item?.allow_period?.start}
+                      {format(new Date(item?.allow_period?.start), 'yyyy-MM-dd HH:mm')}
                     </em>{" "}
                     to{" "}
                     <em className="not-italic text-black">
-                      {item?.allow_period?.end}
+                      {format(new Date(item?.allow_period?.end), 'yyyy-MM-dd HH:mm')}
                     </em>
                   </p>
                 )}
